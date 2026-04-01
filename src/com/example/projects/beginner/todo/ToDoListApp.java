@@ -9,13 +9,14 @@ public class ToDoListApp {
          * [ ] Use a List or Array to store tasks.
          * [ ] Implement "Add Task" and "View Tasks" functionality.
          * [ ] Implement "Mark as Complete" and "Delete Task".
-         * [ ] Optional: Save the list to a text file and load it on startup.
+         * [ ] Save the list to a text file/database and load it on startup.
          *
          * HOW IT WORKS:
-         * 1. The application displays a menu to the user.
-         * 2. The user can add a task, view the list, mark a task as done, or delete a task.
-         * 3. The user's input is processed to update the list.
-         * 4. The application continues to run until the user chooses to exit.
+         * 1. The application loads your tasks from a file or database on startup.
+         * 2. The application displays a menu to the user.
+         * 3. The user can add a task, view the list, mark a task as done, or delete a task.
+         * 4. Any changes are automatically saved to the file or database.
+         * 5. The application continues to run until the user chooses to exit.
          */
     }
 }
