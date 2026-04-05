@@ -76,7 +76,8 @@ public class ToDoListApp {
                         System.out.println("No task was found with the id: " + editId);
                         break;
                     } else {
-                        while (true) {
+                        boolean editing = true;
+                        while (editing) {
                             System.out.println("1. Edit title");
                             System.out.println("2. Edit description");
                             System.out.println("3. Edit status");
@@ -84,7 +85,35 @@ public class ToDoListApp {
                             choice = scanner.nextInt();
 
                             switch (choice) {
+                                case 1:
+                                    System.out.println("Enter a new title: ");
+                                    String newTitle = scanner.next();
 
+                                    task.setTitle(newTitle);
+                                    manager.editTask(task);
+                                    break;
+                                case 2:
+                                    System.out.println("Enter a new description: ");
+                                    String newDesc = scanner.next();
+
+                                    task.setDescription(newDesc);
+                                    manager.editTask(task);
+                                    break;
+                                case 3:
+                                    System.out.println("Enter a new status");
+                                    String newStatus = scanner.next();
+
+                                    task.setStatus(newStatus);
+                                    manager.editTask(task);
+                                    break;
+                                case 4:
+                                    editing = false;
+                                    System.out.println("Changes finalized");
+                                    break;
+                                default:
+                                    editing = false;
+                                    System.out.println("Leaving editing");
+                                    break;
                             }
 
                         }
