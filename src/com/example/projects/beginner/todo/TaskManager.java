@@ -1,9 +1,6 @@
 package com.example.projects.beginner.todo;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,4 +29,65 @@ public class TaskManager {
         }
         return allTasks;
     }
+
+    public void addTask(Task task) {
+
+        String sql = "INSERT INTO tasks (title, description, status) VALUES (?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, task.getTitle());
+            pstmt.setString(2, task.getDescription());
+            pstmt.setString(3, task.getStatus());
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void editTask(Task task) {
+
+        String sql = "UPDATE tasks SET title = ?, description = ?, status = ? WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, task.getTitle());
+            pstmt.setString(2, task.getDescription());
+            pstmt.setString(3, task.getStatus());
+            pstmt.setInt(4, task.getId());
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public Task getTaskById(int id) {
+
+        String sql = "SELECT id, title, description, status FROM tasks WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+
+                if (rs.next()) {
+                    return new Task(
+                            rs.getInt("id"),
+                            rs.getString("title"),
+                            rs.getString("description"),
+                            rs.getString("status")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
 }

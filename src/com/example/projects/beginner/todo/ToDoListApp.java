@@ -33,23 +33,71 @@ public class ToDoListApp {
         } catch (SQLException e) {
             System.out.println("Couldn't connect to db: " + e.getMessage());
         }
-
         TaskManager manager = new TaskManager();
-        try {
-            List<Task> myTasks = manager.getAllTasks();
+        while (true) {
+            System.out.println("Enter 1 to view all tasks");
+            System.out.println("Enter 2 to add a task");
+            System.out.println("Enter 3 to edit a task");
+            System.out.println("Enter 4 to remove a task");
+            System.out.println("Enter 5 to exit");
+            int choice = scanner.nextInt();
 
-            for (Task t : myTasks) {
-                System.out.println(t);
-                //System.out.println(t.getTitle());
+            switch (choice) {
+                case 1:
+                    try {
+                        List<Task> myTasks = manager.getAllTasks();
+
+                        for (Task t : myTasks) {
+                            System.out.println(t.getId() + " " + t.getTitle() + " \t--" + t.getStatus());
+                            //System.out.println(t.getTitle());
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    System.out.println("\n\n");
+                    break;
+                case 2:
+                    System.out.println("Enter the title of the task");
+                    String title = scanner.next();
+                    System.out.println("Enter the description of the task");
+                    String desc = scanner.next();
+                    System.out.println("Enter the status of the task");
+                    String status = scanner.next();
+
+                    Task newTask = new Task(title, desc, status);
+                    manager.addTask(newTask);
+
+                    break;
+                case 3:
+                    System.out.println("Enter the id of the task which you want to edit");
+                    int editId = scanner.nextInt();
+                    Task task = manager.getTaskById(editId);
+                    if (task == null) {
+                        System.out.println("No task was found with the id: " + editId);
+                        break;
+                    } else {
+                        while (true) {
+                            System.out.println("1. Edit title");
+                            System.out.println("2. Edit description");
+                            System.out.println("3. Edit status");
+                            System.out.println("4. Done");
+                            choice = scanner.nextInt();
+
+                            switch (choice) {
+
+                            }
+
+                        }
+
+                    }
+
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
         }
-
-
-
-
-
 
 
     }
