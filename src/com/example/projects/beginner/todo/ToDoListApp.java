@@ -1,5 +1,10 @@
 package com.example.projects.beginner.todo;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Scanner;
+
 public class ToDoListApp {
     public static void main(String[] args) {
         System.out.println("--- To-Do List Application ---");
@@ -18,5 +23,34 @@ public class ToDoListApp {
          * 4. Any changes are automatically saved to the file or database.
          * 5. The application continues to run until the user chooses to exit.
          */
+
+        Scanner scanner = new Scanner(System.in);
+
+        try (Connection conn = databaseConnection.getConnection()) {
+            if (conn != null) {
+                System.out.println("Successful connection to db");
+            }
+        } catch (SQLException e) {
+            System.out.println("Couldn't connect to db: " + e.getMessage());
+        }
+
+        TaskManager manager = new TaskManager();
+        try {
+            List<Task> myTasks = manager.getAllTasks();
+
+            for (Task t : myTasks) {
+                System.out.println(t);
+                //System.out.println(t.getTitle());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+
+
+
+
+
+
     }
 }

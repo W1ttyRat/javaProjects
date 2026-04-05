@@ -38,6 +38,7 @@ public class TemperatureConverterApp {
                 System.out.printf("%.1f degrees Fahrenheit is %.2f degrees Celsius\n", F, result);
             } else {
                 break;
+
             }
         }
 
@@ -51,3 +52,4 @@ public class TemperatureConverterApp {
         return (F - 32) * 5.0/9;
     }
 }
+
