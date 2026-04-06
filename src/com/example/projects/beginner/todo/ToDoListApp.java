@@ -41,6 +41,7 @@ public class ToDoListApp {
             System.out.println("Enter 4 to remove a task");
             System.out.println("Enter 5 to exit");
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -58,19 +59,32 @@ public class ToDoListApp {
                     break;
                 case 2:
                     System.out.println("Enter the title of the task");
-                    String title = scanner.next();
+                    String title = scanner.nextLine();
                     System.out.println("Enter the description of the task");
-                    String desc = scanner.next();
+                    String desc = scanner.nextLine();
                     System.out.println("Enter the status of the task");
-                    String status = scanner.next();
+                    String status = scanner.nextLine();
 
                     Task newTask = new Task(title, desc, status);
                     manager.addTask(newTask);
 
                     break;
                 case 3:
+                    try {
+                        List<Task> myTasks = manager.getAllTasks();
+
+                        for (Task t : myTasks) {
+                            System.out.println(t.getId() + " " + t.getTitle());
+                            //System.out.println(t.getTitle());
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                    System.out.println("\n");
                     System.out.println("Enter the id of the task which you want to edit");
                     int editId = scanner.nextInt();
+                    scanner.nextLine();
                     Task task = manager.getTaskById(editId);
                     if (task == null) {
                         System.out.println("No task was found with the id: " + editId);
@@ -83,25 +97,26 @@ public class ToDoListApp {
                             System.out.println("3. Edit status");
                             System.out.println("4. Done");
                             choice = scanner.nextInt();
+                            scanner.nextLine();
 
                             switch (choice) {
                                 case 1:
                                     System.out.println("Enter a new title: ");
-                                    String newTitle = scanner.next();
+                                    String newTitle = scanner.nextLine();
 
                                     task.setTitle(newTitle);
                                     manager.editTask(task);
                                     break;
                                 case 2:
                                     System.out.println("Enter a new description: ");
-                                    String newDesc = scanner.next();
+                                    String newDesc = scanner.nextLine();
 
                                     task.setDescription(newDesc);
                                     manager.editTask(task);
                                     break;
                                 case 3:
                                     System.out.println("Enter a new status");
-                                    String newStatus = scanner.next();
+                                    String newStatus = scanner.nextLine();
 
                                     task.setStatus(newStatus);
                                     manager.editTask(task);
@@ -131,7 +146,14 @@ public class ToDoListApp {
 
                         System.out.println("Enter the id of a task to remove");
                         int removeId = scanner.nextInt();
-                        manager.removeTask(removeId);
+                        scanner.nextLine();
+
+                        task = manager.getTaskById(removeId);
+                        if (task == null) {
+                            System.out.println("Invalid id");
+                        } else {
+                            manager.removeTask(removeId);
+                        }
                     } catch (SQLException e) {
                         System.out.println(e.getMessage());
                     }

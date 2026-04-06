@@ -99,7 +99,7 @@ public class TaskManager {
 
             pstmt.setInt(1, id);
 
-            pstmt.executeQuery();
+            pstmt.executeUpdate();
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
