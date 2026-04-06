@@ -88,4 +88,49 @@ public class LibraryManager {
         }
         return allBooks;
     }
+
+    public List<Book> getBookByAuthor(String searchAuthor) {
+
+        List<Book> allBooks = new ArrayList<>();
+        String sql = "SELECT id, title, author, is_available FROM books where author ILIKE ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + searchAuthor + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    int id = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String author = rs.getString("author");
+                    boolean isAvailable = rs.getBoolean("is_available");
+
+                    Book book = new Book(id, title, author, isAvailable);
+                    allBooks.add(book);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return allBooks;
+    }
+
+    public void addBook(Book book) {
+
+        String sql = "INSERT INTO books (title, author) VALUES (?, ?)";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, book.getTitle());
+            pstmt.setString(2, book.getAuthor());
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

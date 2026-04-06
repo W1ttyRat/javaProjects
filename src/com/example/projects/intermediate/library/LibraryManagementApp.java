@@ -34,8 +34,46 @@ public class LibraryManagementApp {
             scanner.nextLine();
 
             if (choice == 1) {
-                return;
                 //librarian
+                boolean librarianView = true;
+                while (librarianView) {
+                    System.out.println("1. View all books");
+                    System.out.println("2. Enter a new book");
+                    System.out.println("3. Exit");
+
+                    int librarianChoice = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (librarianChoice == 1) {
+                        List<Book> results = libraryManager.getAllBooks();
+
+                        if (results.isEmpty()) {
+                            System.out.println("No books in the library?");
+                        } else {
+                            for (Book books : results) {
+                                System.out.println(books);
+                            }
+                        }
+
+                    } else if (librarianChoice == 2) {
+
+                        System.out.println("title: ");
+                        String newTitle = scanner.nextLine();
+                        System.out.println("Author: ");
+                        String newAuthor = scanner.nextLine();
+
+                        Book newBook = new Book(newTitle, newAuthor);
+                        libraryManager.addBook(newBook);
+
+                        System.out.println("Added a new book to the library");
+
+                    } else if (librarianChoice == 3) {
+                        librarianView = false;
+                    } else {
+                        System.out.println("Enter a number");
+                    }
+                }
+
             } else if (choice == 2) {
                 //user
                 /*List<Book> allBooks = libraryManager.getAllBooks();
@@ -45,13 +83,23 @@ public class LibraryManagementApp {
                 }*/
                 boolean userView = true;
                 while (userView) {
-                    System.out.println("1. find by title");
-                    System.out.println("2. find by author");
-                    System.out.println("3. exit");
+                    System.out.println("1. find all books");
+                    System.out.println("2. find by title");
+                    System.out.println("3. find by author");
+                    System.out.println("4. exit");
                     int userChoice = scanner.nextInt();
                     scanner.nextLine();
-
                     if (userChoice == 1) {
+                        List<Book> searchResults = libraryManager.getAllBooks();
+                        if (searchResults.isEmpty()) {
+                            System.out.println("No books in the library");
+                        } else {
+                            for (Book books : searchResults) {
+                                System.out.println(books);
+                            }
+                        }
+                    }
+                    if (userChoice == 2) {
                         System.out.println("Enter the title: ");
                         String searchTitle = scanner.nextLine();
 
@@ -65,6 +113,23 @@ public class LibraryManagementApp {
                             }
                         }
 
+                    } else if (userChoice == 3) {
+                        System.out.println("Enter the author: ");
+                        String searchAuthor = scanner.nextLine();
+
+                        List<Book> searchResults = libraryManager.getBookByAuthor(searchAuthor);
+
+                        if (searchResults.isEmpty()) {
+                            System.out.println("No books were found");
+                        } else {
+                            for (Book books : searchResults) {
+                                System.out.println(books);
+                            }
+                        }
+                    } else if (userChoice == 4) {
+                        userView = false;
+                    } else {
+                        System.out.println("Enter a number");
                     }
                 }
 
