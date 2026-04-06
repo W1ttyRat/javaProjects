@@ -54,7 +54,7 @@ public class ToDoListApp {
                     } catch (SQLException e) {
                         System.out.println(e.getMessage());
                     }
-                    System.out.println("\n\n");
+                    System.out.println("\n");
                     break;
                 case 2:
                     System.out.println("Enter the title of the task");
@@ -119,11 +119,27 @@ public class ToDoListApp {
                         }
 
                     }
-
                     break;
                 case 4:
+                    try {
+                        List<Task> myTasks = manager.getAllTasks();
+
+                        for (Task t : myTasks) {
+                            System.out.println(t.getId() + " " + t.getTitle());
+                            //System.out.println(t.getTitle());
+                        }
+
+                        System.out.println("Enter the id of a task to remove");
+                        int removeId = scanner.nextInt();
+                        manager.removeTask(removeId);
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 5:
+                    System.exit(0);
+                    break;
+                default:
                     break;
             }
         }

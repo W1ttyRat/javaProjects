@@ -90,4 +90,21 @@ public class TaskManager {
         return null;
     }
 
+    public Task removeTask(int id) {
+
+        String sql = "DELETE FROM tasks WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            pstmt.executeQuery();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
 }
