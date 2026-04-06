@@ -1,5 +1,7 @@
 package com.example.projects.intermediate.library;
 
+import com.example.projects.intermediate.library.dto.ActiveRentalInfo;
+
 import java.sql.Connection;
 import java.util.List;
 import java.util.Scanner;
@@ -39,38 +41,89 @@ public class LibraryManagementApp {
                 while (librarianView) {
                     System.out.println("1. View all books");
                     System.out.println("2. Enter a new book");
-                    System.out.println("3. Exit");
+                    System.out.println("3. View all currently rented books");
+                    System.out.println("4. Search currently rented books by title");
+                    System.out.println("5. Return a book");
+                    System.out.println("6. Delete a book");
+                    System.out.println("7. Exit");
 
                     int librarianChoice = scanner.nextInt();
                     scanner.nextLine();
 
-                    if (librarianChoice == 1) {
-                        List<Book> results = libraryManager.getAllBooks();
+                    switch (librarianChoice) {
+                        case 1 -> {
+                            List<Book> results = libraryManager.getAllBooks();
 
-                        if (results.isEmpty()) {
-                            System.out.println("No books in the library?");
-                        } else {
-                            for (Book books : results) {
-                                System.out.println(books);
+                            if (results.isEmpty()) {
+                                System.out.println("No books in the library?");
+                            } else {
+                                for (Book books : results) {
+                                    System.out.println(books);
+                                }
                             }
                         }
+                        case 2 -> {
 
-                    } else if (librarianChoice == 2) {
+                            System.out.println("title: ");
+                            String newTitle = scanner.nextLine();
+                            System.out.println("Author: ");
+                            String newAuthor = scanner.nextLine();
 
-                        System.out.println("title: ");
-                        String newTitle = scanner.nextLine();
-                        System.out.println("Author: ");
-                        String newAuthor = scanner.nextLine();
+                            Book newBook = new Book(newTitle, newAuthor);
+                            libraryManager.addBook(newBook);
 
-                        Book newBook = new Book(newTitle, newAuthor);
-                        libraryManager.addBook(newBook);
+                            System.out.println("Added a new book to the library");
+                        }
+                        case 3 -> {
+                            List<ActiveRentalInfo> results = libraryManager.getActiveRentals();
 
-                        System.out.println("Added a new book to the library");
+                            if (results.isEmpty()) {
+                                System.out.println("No books are being rented");
+                            } else {
+                                for (ActiveRentalInfo activeRentalInfo : results) {
+                                    System.out.println(activeRentalInfo);
+                                }
+                            }
+                        }
+                        case 4 -> {
+                            System.out.println("Enter the title of the book");
+                            String searchTitle = scanner.nextLine();
 
-                    } else if (librarianChoice == 3) {
-                        librarianView = false;
-                    } else {
-                        System.out.println("Enter a number");
+                            List<ActiveRentalInfo> results = libraryManager.searchActiveRentals(searchTitle);
+
+                            if (results.isEmpty()) {
+                                System.out.println("No books are rented with the given title");
+                            } else {
+                                for (ActiveRentalInfo activeRentalInfo : results) {
+                                    System.out.println(activeRentalInfo);
+                                }
+                            }
+                        }
+                        case 5 -> {
+                            System.out.println("Enter the id of the book");
+                            int returnId = scanner.nextInt();
+                            scanner.nextLine();
+
+                            boolean attempt = libraryManager.returnBook(returnId);
+
+                            if (attempt) {
+                                System.out.println("Book returned successfully");
+                            } else {
+                                System.out.println("Book not returned");
+                            }
+                        }
+                        case 6 -> {
+                            System.out.println("Enter the Book ID: ");
+                            int deleteId = scanner.nextInt();
+
+                            if (libraryManager.removeBook(deleteId)) {
+                                System.out.println("Successfully deleted Book ID #" + deleteId);
+                            } else {
+                                System.out.println("Error: No book was found with ID #" + deleteId);
+                            }
+                        }
+                        case 7 -> librarianView = false;
+                        default -> System.out.println("Enter a number");
                     }
                 }
 
@@ -86,50 +139,71 @@ public class LibraryManagementApp {
                     System.out.println("1. find all books");
                     System.out.println("2. find by title");
                     System.out.println("3. find by author");
-                    System.out.println("4. exit");
+                    System.out.println("4. rent a book");
+                    System.out.println("5. exit");
                     int userChoice = scanner.nextInt();
                     scanner.nextLine();
-                    if (userChoice == 1) {
-                        List<Book> searchResults = libraryManager.getAllBooks();
-                        if (searchResults.isEmpty()) {
-                            System.out.println("No books in the library");
-                        } else {
-                            for (Book books : searchResults) {
-                                System.out.println(books);
+                    switch (userChoice) {
+                        case 1 -> {
+                            List<Book> searchResults = libraryManager.getAllBooks();
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No books in the library");
+                            } else {
+                                for (Book books : searchResults) {
+                                    System.out.println(books);
+                                }
                             }
                         }
-                    }
-                    if (userChoice == 2) {
-                        System.out.println("Enter the title: ");
-                        String searchTitle = scanner.nextLine();
+                        case 2 -> {
+                            System.out.println("Enter the title: ");
+                            String searchTitle = scanner.nextLine();
 
-                        List<Book> searchResults = libraryManager.getBookByTitle(searchTitle);
+                            List<Book> searchResults = libraryManager.getBookByTitle(searchTitle);
 
-                        if (searchResults.isEmpty()) {
-                            System.out.println("No books were found");
-                        } else {
-                            for (Book books : searchResults) {
-                                System.out.println(books);
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No books were found");
+                            } else {
+                                for (Book books : searchResults) {
+                                    System.out.println(books);
+                                }
                             }
                         }
+                        case 3 -> {
+                            System.out.println("Enter the author: ");
+                            String searchAuthor = scanner.nextLine();
 
-                    } else if (userChoice == 3) {
-                        System.out.println("Enter the author: ");
-                        String searchAuthor = scanner.nextLine();
+                            List<Book> searchResults = libraryManager.getBookByAuthor(searchAuthor);
 
-                        List<Book> searchResults = libraryManager.getBookByAuthor(searchAuthor);
-
-                        if (searchResults.isEmpty()) {
-                            System.out.println("No books were found");
-                        } else {
-                            for (Book books : searchResults) {
-                                System.out.println(books);
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No books were found");
+                            } else {
+                                for (Book books : searchResults) {
+                                    System.out.println(books);
+                                }
                             }
                         }
-                    } else if (userChoice == 4) {
-                        userView = false;
-                    } else {
-                        System.out.println("Enter a number");
+                        case 4 -> {
+                            System.out.println("Enter Book ID to rent: ");
+                            int rentId = scanner.nextInt();
+                            scanner.nextLine();
+
+                            Book targetBook = libraryManager.getBookById(rentId);
+
+                            if (targetBook == null) {
+                                System.out.println("Error: Book not found");
+                            } else if (!targetBook.isAvailable()) {
+                                System.out.println("Error: This book is already rented out");
+                            } else {
+                                System.out.println("Enter name: ");
+                                String memberName = scanner.nextLine();
+
+                                if (libraryManager.rentBook(rentId, memberName)) {
+                                    System.out.println("Successfully rented");
+                                }
+                            }
+                        }
+                        case 5 -> System.exit(0);
+                        default -> System.out.println("Enter a number");
                     }
                 }
 

@@ -1,5 +1,7 @@
 package com.example.projects.intermediate.library;
 
+import com.example.projects.intermediate.library.dto.ActiveRentalInfo;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,5 +134,158 @@ public class LibraryManager {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void updateAvailability(int id, boolean isAvailable) {
+
+        String sql = "UPDATE books SET is_available = ? WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(2, id);
+            pstmt.setBoolean(1, isAvailable);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public boolean removeBook(int id) {
+
+        String sql = "DELETE FROM books WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            int rowsDeleted = pstmt.executeUpdate();
+
+            return rowsDeleted > 0;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean rentBook(int bookId, String memberName) {
+
+        String sqlInsert = "INSERT INTO rentals (book_id, member_name) VALUES (?, ?)";
+        String sqlUpdate = "UPDATE books SET is_available = false WHERE id = ?";
+
+        try (Connection conn = getConnection()) {
+
+            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlInsert)) {
+
+                pstmt1.setInt(1, bookId);
+                pstmt1.setString(2, memberName);
+                pstmt1.executeUpdate();
+
+            }
+
+            try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdate)) {
+
+                pstmt2.setInt(1, bookId);
+                pstmt2.executeUpdate();
+
+            }
+
+            System.out.println("Book successfully rented");
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean returnBook(int bookId) {
+
+        String sqlUpdateBook = "UPDATE books SET is_available = TRUE WHERE id = ?";
+        String sqlUpdateRental = "UPDATE rentals SET return_date = CURRENT_DATE WHERE book_id = ? AND return_date IS NULL";
+
+        try (Connection conn = getConnection()) {
+
+            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateBook)) {
+
+                pstmt1.setInt(1, bookId);
+                pstmt1.executeUpdate();
+            }
+
+            try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdateRental)) {
+
+                pstmt2.setInt(1, bookId);
+                pstmt2.executeUpdate();
+            }
+            System.out.println("Book is successfully returned");
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public List<ActiveRentalInfo> getActiveRentals() {
+        List<ActiveRentalInfo> infoList = new ArrayList<>();
+
+        String sql = "SELECT b.title, r.member_name, r.rent_date " +
+                "FROM books b " +
+                "JOIN rentals r ON b.id = r.book_id " +
+                "WHERE r.return_date IS NULL";
+
+        try (Connection conn = getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+
+                String title = rs.getString("title");
+                String memberName = rs.getString("member_name");
+                String rentDate = rs.getString("rent_date");
+
+                ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(title, memberName, rentDate);
+                infoList.add(activeRentalInfo);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return infoList;
+    }
+
+    public List<ActiveRentalInfo> searchActiveRentals(String searchTitle) {
+        List<ActiveRentalInfo> searchResult = new ArrayList<>();
+
+        String sql = "SELECT b.id, b.title, r.member_name, r.rent_date " +
+                "FROM books b " +
+                "JOIN rentals r ON b.id = r.book_id " +
+                "WHERE r.return_date IS NULL " +
+                "AND b.title ILIKE ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + searchTitle + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+
+                while(rs.next()) {
+
+                    int id = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String memberName = rs.getString("member_name");
+                    String returnDate = rs.getString("rent_date");
+
+                    ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(id, title, memberName, returnDate);
+                    searchResult.add(activeRentalInfo);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return searchResult;
     }
 }
