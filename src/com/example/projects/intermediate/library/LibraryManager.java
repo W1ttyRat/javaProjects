@@ -176,7 +176,7 @@ public class LibraryManager {
 
     public boolean rentBook(int bookId, String memberName) {
 
-        String sqlInsert = "INSERT INTO rentals (book_id, member_name) VALUES (?, ?)";
+        String sqlInsert = "INSERT INTO rentals (book_id, member_name, rent_date, due_date) VALUES (?, ?, CURRENT_DATE, CURRENT_DATE + INTERVAL '14 days')";
         String sqlUpdate = "UPDATE books SET is_available = false WHERE id = ?";
 
         try (Connection conn = getConnection()) {
@@ -239,6 +239,8 @@ public class LibraryManager {
                 System.out.println("This book is " + daysLate + " days late");
                 System.out.println("The total fine is: " + fine + "€");
 
+            } else {
+                System.out.println("Rental was not late, no fees");
             }
 
             try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateBook)) {
@@ -329,7 +331,7 @@ public class LibraryManager {
     public List<ActiveRentalInfo> getLateFeeHistory() {
         List<ActiveRentalInfo> lateFeeList = new ArrayList<>();
 
-        String sql = "SELECT b.title, r.member_name, r.rent_date, r.fine_amount " +
+        String sql = "SELECT b.id, b.title, r.member_name, r.rent_date, r.due_date, r.fine_amount " +
                 "FROM books b " +
                 "JOIN rentals r ON b.id = r.book_id " +
                 "WHERE r.return_date IS NOT NULL " +
@@ -341,13 +343,19 @@ public class LibraryManager {
 
             while (rs.next()) {
 
+                int id = rs.getInt("id");
                 String title = rs.getString("title");
                 String memberName = rs.getString("member_name");
                 LocalDate rentDate = rs.getDate("rent_date").toLocalDate();
+                LocalDate dueDate = rs.getDate("due_date").toLocalDate();
                 double fineAmount = rs.getDouble("fine_amount");
+
+                ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(id, title, memberName, rentDate, dueDate, fineAmount);
+                lateFeeList.add(activeRentalInfo);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return lateFeeList;
     }
 }

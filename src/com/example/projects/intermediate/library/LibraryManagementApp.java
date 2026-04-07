@@ -83,7 +83,7 @@ public class LibraryManagementApp {
                                 System.out.println("No books are being rented");
                             } else {
                                 for (ActiveRentalInfo activeRentalInfo : results) {
-                                    System.out.println(activeRentalInfo);
+                                    System.out.println("ID: " + activeRentalInfo.getId() + "; Title: " + activeRentalInfo.getTitle() + "; Member's name: " + activeRentalInfo.getMemberName() + "; Rent date: " + activeRentalInfo.getRentDate() + "; Due date: " + activeRentalInfo.getDueDate() + ";");
                                 }
                             }
                         }
@@ -151,7 +151,15 @@ public class LibraryManagementApp {
                             }
                         }
                         case 8 -> {
-                            System.out.println("function in progress");
+                            List<ActiveRentalInfo> results = libraryManager.getLateFeeHistory();
+
+                            if (results.isEmpty()) {
+                                System.out.println("No rentals have late fees");
+                            } else {
+                                for (ActiveRentalInfo activeRentalInfo : results) {
+                                    System.out.println(activeRentalInfo);
+                                }
+                            }
                         }
                         case 9 -> librarianView = false;
                         default -> System.out.println("Enter a number");

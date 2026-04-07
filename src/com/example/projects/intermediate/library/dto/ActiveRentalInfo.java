@@ -19,6 +19,15 @@ public class ActiveRentalInfo {
         this.dueDate = dueDate;
     }
 
+    public ActiveRentalInfo(int id, String title, String memberName, LocalDate rentDate, LocalDate dueDate, double fineAmount) {
+        this.id = id;
+        this.title = title;
+        this.memberName = memberName;
+        this.rentDate = rentDate;
+        this.dueDate = dueDate;
+        this.fineAmount = fineAmount;
+    }
+
     public int getId() {
         return id;
     }
@@ -49,8 +58,9 @@ public class ActiveRentalInfo {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", memberName='" + memberName + '\'' +
-                ", rentDate='" + rentDate + '\'' +
+                ", rentDate=" + rentDate +
                 ", dueDate=" + dueDate +
+                ", fineAmount=" + fineAmount +
                 '}';
     }
 }
