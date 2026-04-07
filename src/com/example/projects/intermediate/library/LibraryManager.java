@@ -3,6 +3,8 @@ package com.example.projects.intermediate.library;
 import com.example.projects.intermediate.library.dto.ActiveRentalInfo;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -205,9 +207,39 @@ public class LibraryManager {
     public boolean returnBook(int bookId) {
 
         String sqlUpdateBook = "UPDATE books SET is_available = TRUE WHERE id = ?";
-        String sqlUpdateRental = "UPDATE rentals SET return_date = CURRENT_DATE WHERE book_id = ? AND return_date IS NULL";
+        String sqlUpdateRental = "UPDATE rentals SET return_date = CURRENT_DATE, fine_amount = ? WHERE book_id = ? AND return_date IS NULL";
+        String sqlGetDueDate = "SELECT due_date FROM rentals WHERE book_id = ? AND return_date IS NULL";
+
+        double fine = 0.0;
 
         try (Connection conn = getConnection()) {
+
+            LocalDate dueDate = null;
+
+            try (PreparedStatement pstmt3 = conn.prepareStatement(sqlGetDueDate)) {
+
+                pstmt3.setInt(1, bookId);
+
+                try (ResultSet rs = pstmt3.executeQuery()) {
+
+                    if (rs.next()) {
+                        dueDate = rs.getDate("due_date").toLocalDate();
+                    }
+                }
+            }
+
+            if (dueDate == null) return false;
+
+            LocalDate today = LocalDate.now();
+
+            long daysLate = ChronoUnit.DAYS.between(dueDate, today);
+
+            if (daysLate > 0) {
+                fine = daysLate * 0.50;
+                System.out.println("This book is " + daysLate + " days late");
+                System.out.println("The total fine is: " + fine + "€");
+
+            }
 
             try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateBook)) {
 
@@ -217,7 +249,8 @@ public class LibraryManager {
 
             try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdateRental)) {
 
-                pstmt2.setInt(1, bookId);
+                pstmt2.setDouble(1, fine);
+                pstmt2.setInt(2, bookId);
                 pstmt2.executeUpdate();
             }
             System.out.println("Book is successfully returned");
@@ -231,7 +264,7 @@ public class LibraryManager {
     public List<ActiveRentalInfo> getActiveRentals() {
         List<ActiveRentalInfo> infoList = new ArrayList<>();
 
-        String sql = "SELECT b.title, r.member_name, r.rent_date " +
+        String sql = "SELECT b.id, b.title, r.member_name, r.rent_date, r.due_date " +
                 "FROM books b " +
                 "JOIN rentals r ON b.id = r.book_id " +
                 "WHERE r.return_date IS NULL";
@@ -242,11 +275,14 @@ public class LibraryManager {
 
             while (rs.next()) {
 
+                int id = rs.getInt("id");
                 String title = rs.getString("title");
                 String memberName = rs.getString("member_name");
-                String rentDate = rs.getString("rent_date");
+                LocalDate rentDate = rs.getDate("rent_date").toLocalDate();
+                LocalDate dueDate = rs.getDate("due_date").toLocalDate();
 
-                ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(title, memberName, rentDate);
+
+                ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(id, title, memberName, rentDate, dueDate);
                 infoList.add(activeRentalInfo);
             }
         } catch (SQLException e) {
@@ -258,7 +294,7 @@ public class LibraryManager {
     public List<ActiveRentalInfo> searchActiveRentals(String searchTitle) {
         List<ActiveRentalInfo> searchResult = new ArrayList<>();
 
-        String sql = "SELECT b.id, b.title, r.member_name, r.rent_date " +
+        String sql = "SELECT b.id, b.title, r.member_name, r.rent_date, r.due_date " +
                 "FROM books b " +
                 "JOIN rentals r ON b.id = r.book_id " +
                 "WHERE r.return_date IS NULL " +
@@ -276,9 +312,10 @@ public class LibraryManager {
                     int id = rs.getInt("id");
                     String title = rs.getString("title");
                     String memberName = rs.getString("member_name");
-                    String returnDate = rs.getString("rent_date");
+                    LocalDate returnDate = rs.getDate("rent_date").toLocalDate();
+                    LocalDate dueDate = rs.getDate("due_date").toLocalDate();
 
-                    ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(id, title, memberName, returnDate);
+                    ActiveRentalInfo activeRentalInfo = new ActiveRentalInfo(id, title, memberName, returnDate, dueDate);
                     searchResult.add(activeRentalInfo);
                 }
             }
@@ -287,5 +324,30 @@ public class LibraryManager {
             System.out.println(e.getMessage());
         }
         return searchResult;
+    }
+
+    public List<ActiveRentalInfo> getLateFeeHistory() {
+        List<ActiveRentalInfo> lateFeeList = new ArrayList<>();
+
+        String sql = "SELECT b.title, r.member_name, r.rent_date, r.fine_amount " +
+                "FROM books b " +
+                "JOIN rentals r ON b.id = r.book_id " +
+                "WHERE r.return_date IS NOT NULL " +
+                "AND r.fine_amount > 0";
+
+        try (Connection conn = getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+
+                String title = rs.getString("title");
+                String memberName = rs.getString("member_name");
+                LocalDate rentDate = rs.getDate("rent_date").toLocalDate();
+                double fineAmount = rs.getDouble("fine_amount");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

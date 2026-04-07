@@ -1,23 +1,22 @@
 package com.example.projects.intermediate.library.dto;
 
+import java.time.LocalDate;
+
 public class ActiveRentalInfo {
 
     private int id;
     private String title;
     private String memberName;
-    private String rentDate;
+    private LocalDate rentDate;
+    private LocalDate dueDate;
+    private double fineAmount;
 
-    public ActiveRentalInfo(int id, String title, String memberName, String rentDate) {
+    public ActiveRentalInfo(int id, String title, String memberName, LocalDate rentDate, LocalDate dueDate) {
         this.id = id;
         this.title = title;
         this.memberName = memberName;
         this.rentDate = rentDate;
-    }
-
-    public ActiveRentalInfo(String title, String memberName, String rentDate) {
-        this.title = title;
-        this.memberName = memberName;
-        this.rentDate = rentDate;
+        this.dueDate = dueDate;
     }
 
     public int getId() {
@@ -32,16 +31,26 @@ public class ActiveRentalInfo {
         return memberName;
     }
 
-    public String getRentDate() {
+    public LocalDate getRentDate() {
         return rentDate;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public double getFineAmount() {
+        return fineAmount;
     }
 
     @Override
     public String toString() {
         return "ActiveRentalInfo{" +
-                "title='" + title + '\'' +
+                "id=" + id +
+                ", title='" + title + '\'' +
                 ", memberName='" + memberName + '\'' +
                 ", rentDate='" + rentDate + '\'' +
+                ", dueDate=" + dueDate +
                 '}';
     }
 }

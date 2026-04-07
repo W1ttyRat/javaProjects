@@ -9,13 +9,20 @@ public class Rental {
     private String memberName;
     private LocalDate rentDate;
     private LocalDate returnDate;
+    private LocalDate dueDate;
 
-    public Rental(int id, int bookId, String memberName, LocalDate rentDate, LocalDate returnDate) {
+    public Rental(LocalDate rentDate, String memberName, int bookId) {
+        this.rentDate = rentDate;
+        this.memberName = memberName;
+        this.bookId = bookId;
+    }
+
+    public Rental(int id, int bookId, String memberName, LocalDate rentDate, LocalDate dueDate) {
         this.id = id;
         this.bookId = bookId;
         this.memberName = memberName;
         this.rentDate = rentDate;
-        this.returnDate = returnDate;
+        this.dueDate = dueDate;
     }
 
     public int getId() {
@@ -58,6 +65,14 @@ public class Rental {
         this.returnDate = returnDate;
     }
 
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
     @Override
     public String toString() {
         return "Rental{" +
@@ -66,6 +81,7 @@ public class Rental {
                 ", memberName='" + memberName + '\'' +
                 ", rentDate=" + rentDate +
                 ", returnDate=" + returnDate +
+                ", dueDate=" + dueDate +
                 '}';
     }
 }

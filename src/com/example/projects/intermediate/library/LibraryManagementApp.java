@@ -44,8 +44,10 @@ public class LibraryManagementApp {
                     System.out.println("3. View all currently rented books");
                     System.out.println("4. Search currently rented books by title");
                     System.out.println("5. Return a book");
-                    System.out.println("6. Delete a book");
-                    System.out.println("7. Exit");
+                    System.out.println("6. Rent a book");
+                    System.out.println("7. Delete a book");
+                    System.out.println("8. View late fees");
+                    System.out.println("9. Exit");
 
                     int librarianChoice = scanner.nextInt();
                     scanner.nextLine();
@@ -104,15 +106,41 @@ public class LibraryManagementApp {
                             int returnId = scanner.nextInt();
                             scanner.nextLine();
 
-                            boolean attempt = libraryManager.returnBook(returnId);
+                            Book book = libraryManager.getBookById(returnId);
 
-                            if (attempt) {
-                                System.out.println("Book returned successfully");
+                            if (book == null) {
+                                System.out.println("Error: book doesn't exist");
+                            } else if (book.isAvailable()) {
+                                System.out.println("Can't return a book that isn't rented");
                             } else {
-                                System.out.println("Book not returned");
+                                if (libraryManager.returnBook(returnId)) {
+                                    System.out.println("Book returned");
+                                } else {
+                                    System.out.println("Error: no book returned");
+                                }
                             }
                         }
                         case 6 -> {
+                            System.out.println("Enter Book ID to rent: ");
+                            int rentId = scanner.nextInt();
+                            scanner.nextLine();
+
+                            Book targetBook = libraryManager.getBookById(rentId);
+
+                            if (targetBook == null) {
+                                System.out.println("Error: Book not found");
+                            } else if (!targetBook.isAvailable()) {
+                                System.out.println("Error: This book is already rented out");
+                            } else {
+                                System.out.println("Enter name: ");
+                                String memberName = scanner.nextLine();
+
+                                if (libraryManager.rentBook(rentId, memberName)) {
+                                    System.out.println("Successfully rented");
+                                }
+                            }
+                        }
+                        case 7 -> {
                             System.out.println("Enter the Book ID: ");
                             int deleteId = scanner.nextInt();
 
@@ -122,7 +150,10 @@ public class LibraryManagementApp {
                                 System.out.println("Error: No book was found with ID #" + deleteId);
                             }
                         }
-                        case 7 -> librarianView = false;
+                        case 8 -> {
+                            System.out.println("function in progress");
+                        }
+                        case 9 -> librarianView = false;
                         default -> System.out.println("Enter a number");
                     }
                 }
@@ -202,7 +233,7 @@ public class LibraryManagementApp {
                                 }
                             }
                         }
-                        case 5 -> System.exit(0);
+                        case 5 -> userView = false;
                         default -> System.out.println("Enter a number");
                     }
                 }
