@@ -180,24 +180,29 @@ public class LibraryManager {
         String sqlUpdate = "UPDATE books SET is_available = false WHERE id = ?";
 
         try (Connection conn = getConnection()) {
+            try {
+                conn.setAutoCommit(false);
+                try (PreparedStatement pstmt1 = conn.prepareStatement(sqlInsert)) {
 
-            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlInsert)) {
+                    pstmt1.setInt(1, bookId);
+                    pstmt1.setString(2, memberName);
+                    pstmt1.executeUpdate();
 
-                pstmt1.setInt(1, bookId);
-                pstmt1.setString(2, memberName);
-                pstmt1.executeUpdate();
+                }
 
+                try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdate)) {
+
+                    pstmt2.setInt(1, bookId);
+                    pstmt2.executeUpdate();
+
+                }
+                conn.commit();
+                System.out.println("Book successfully rented");
+                return true;
+            } catch (SQLException e) {
+                System.out.println("Transaction failed");
+                conn.rollback();
             }
-
-            try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdate)) {
-
-                pstmt2.setInt(1, bookId);
-                pstmt2.executeUpdate();
-
-            }
-
-            System.out.println("Book successfully rented");
-            return true;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -213,52 +218,60 @@ public class LibraryManager {
         double fine = 0.0;
 
         try (Connection conn = getConnection()) {
+            try {
+                conn.setAutoCommit(false);
 
-            LocalDate dueDate = null;
+                LocalDate dueDate = null;
 
-            try (PreparedStatement pstmt3 = conn.prepareStatement(sqlGetDueDate)) {
+                try (PreparedStatement pstmt3 = conn.prepareStatement(sqlGetDueDate)) {
 
-                pstmt3.setInt(1, bookId);
+                    pstmt3.setInt(1, bookId);
 
-                try (ResultSet rs = pstmt3.executeQuery()) {
+                    try (ResultSet rs = pstmt3.executeQuery()) {
 
-                    if (rs.next()) {
-                        dueDate = rs.getDate("due_date").toLocalDate();
+                        if (rs.next()) {
+                            dueDate = rs.getDate("due_date").toLocalDate();
+                        }
                     }
                 }
+
+                if (dueDate == null) return false;
+
+                LocalDate today = LocalDate.now();
+
+                long daysLate = ChronoUnit.DAYS.between(dueDate, today);
+
+                if (daysLate > 0) {
+                    fine = daysLate * 0.50;
+                    System.out.println("This book is " + daysLate + " days late");
+                    System.out.println("The total fine is: " + fine + "€");
+
+                } else {
+                    System.out.println("Rental was not late, no fees");
+                }
+
+                try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateBook)) {
+
+                    pstmt1.setInt(1, bookId);
+                    pstmt1.executeUpdate();
+                }
+
+                try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdateRental)) {
+
+                    pstmt2.setDouble(1, fine);
+                    pstmt2.setInt(2, bookId);
+                    pstmt2.executeUpdate();
+                }
+                conn.commit();
+                System.out.println("Book is successfully returned");
+                return true;
+            } catch (SQLException e) {
+                System.out.println("Couldn't return book");
+                conn.rollback();
             }
-
-            if (dueDate == null) return false;
-
-            LocalDate today = LocalDate.now();
-
-            long daysLate = ChronoUnit.DAYS.between(dueDate, today);
-
-            if (daysLate > 0) {
-                fine = daysLate * 0.50;
-                System.out.println("This book is " + daysLate + " days late");
-                System.out.println("The total fine is: " + fine + "€");
-
-            } else {
-                System.out.println("Rental was not late, no fees");
-            }
-
-            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateBook)) {
-
-                pstmt1.setInt(1, bookId);
-                pstmt1.executeUpdate();
-            }
-
-            try (PreparedStatement pstmt2 = conn.prepareStatement(sqlUpdateRental)) {
-
-                pstmt2.setDouble(1, fine);
-                pstmt2.setInt(2, bookId);
-                pstmt2.executeUpdate();
-            }
-            System.out.println("Book is successfully returned");
-            return true;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            //conn.rollback();
         }
         return false;
     }
