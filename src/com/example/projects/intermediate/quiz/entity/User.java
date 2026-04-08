@@ -13,6 +13,11 @@ public class User {
         this.role = role;
     }
 
+    public User(String username, String role) {
+        this.username = username;
+        this.role = role;
+    }
+
     @Override
     public String toString() {
         return "User{" +
