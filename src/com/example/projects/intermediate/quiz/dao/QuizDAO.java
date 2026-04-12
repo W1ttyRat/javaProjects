@@ -1,7 +1,6 @@
 package com.example.projects.intermediate.quiz.dao;
 
 import com.example.projects.intermediate.quiz.entity.Quiz;
-import com.example.projects.intermediate.quiz.entity.User;
 
 import java.sql.*;
 

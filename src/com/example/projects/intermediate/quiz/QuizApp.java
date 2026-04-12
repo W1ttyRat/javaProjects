@@ -28,50 +28,78 @@ public class QuizApp {
         Scanner scanner = new Scanner(System.in);
         UserDAO userDAO = new UserDAO();
         QuizDAO quizDAO = new QuizDAO();
+        boolean loggedIn = false;
+
+        System.out.println("1. Log in");
+        System.out.println("2. Sign up");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        if (choice == 1) {
+            while (true) {
+                System.out.println("Username: ");
+                String enterUsername = scanner.nextLine();
+
+                User user = userDAO.findByUsername(enterUsername);
+
+                System.out.println("Password: ");
+                String enterPassword = scanner.nextLine();
+
+                if (!enterPassword.equals(user.getPassword())) {
+                    System.out.println("Wrong password");
+                } else if (enterPassword.equals(user.getPassword())) {
+                    System.out.println("Logged in");
+                    loggedIn = true;
+                    break;
+                }
+            }
+        } else if (choice == 2) {
+            System.out.println("Enter username:");
+            String createUsername = scanner.nextLine();
+            System.out.println("Enter password");
+            String createPassword = scanner.nextLine();
+            System.out.println("Are you a teacher/student");
+            String createRole = scanner.nextLine().toLowerCase().strip();
+
+            User newUser = new User(createUsername, createPassword, createRole);
+        }
 
 
         //List<User> results = userDAO.getAllUsers();
         //System.out.println(results);
 
-        System.out.println("Username: ");
-        String enterUsername = scanner.nextLine();
-        System.out.println("Password: ");
-        String enterPassword = scanner.nextLine();
-
         //UserDAO check user and stuff
+        // create new user, enter username, password, choose (student/teacher)
 
-        System.out.println("1. Start quiz");
-        System.out.println("2. Create quiz");
-        System.out.println("3. Exit/logout");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
 
-        if (choice == 1) {
-            System.out.println("");
-        } else if (choice == 2) {
-            System.out.println("Title: ");
-            String quizTitle = scanner.nextLine();
-            System.out.println("Category: ");
-            String quizCategory = scanner.nextLine();
+        while (loggedIn) {
 
-            Quiz newQuiz = new Quiz(quizTitle, null, quizCategory);
-            newQuiz.setCreatorId(userDAO.getUserById());
+            System.out.println("1. Start quiz");
+            System.out.println("2. Create quiz");
+            System.out.println("3. Exit/logout");
+            choice = scanner.nextInt();
+            scanner.nextLine();
 
-            if (quizDAO.createQuiz(newQuiz)) {
-                System.out.println("Quiz saved! new id is: " + newQuiz.getId());
+            if (choice == 1) {
+                System.out.println("");
+            } else if (choice == 2) {
+                System.out.println("Title: ");
+                String quizTitle = scanner.nextLine();
+                System.out.println("Category: ");
+                String quizCategory = scanner.nextLine();
+
+                //quizDAO.createQuiz(quizTitle, quizCategory, ());
+
+                // create questions
+
+                // while loop
+                // enter question
+                // enter min 3 answers
+                // choose the correct answer
+                // save questions, link to quiz_id
+
+
             }
-
-            // create Quiz, save to DB and then get ID
-
-            // create questions
-
-            // while loop
-            // enter question
-            // enter min 3 answers
-            // choose the correct answer
-            // save questions, link to quiz_id
-
-
         }
     }
 }

@@ -18,6 +18,12 @@ public class User {
         this.role = role;
     }
 
+    public User(int id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         return "User{" +
