@@ -3,6 +3,8 @@ package com.example.projects.intermediate.quiz.dao;
 import com.example.projects.intermediate.quiz.entity.Quiz;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.projects.beginner.todo.databaseConnection.getConnection;
 
@@ -33,5 +35,32 @@ public class QuizDAO {
             System.out.println(e.getMessage());
         }
         return false;
+    }
+
+    public List<Quiz> getUserQuizzes(int creatorId) {
+        List<Quiz> quizzes = new ArrayList<>();
+
+        String sql = "SELECT id, title, category FROM quizzes WHERE creator_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, creatorId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    int id = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String category = rs.getString("category");
+
+                    Quiz quiz = new Quiz(id, title, category);
+                    quizzes.add(quiz);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return quizzes;
     }
 }

@@ -10,9 +10,16 @@ public class Quiz {
     private List<Question> questions;
     private String category;
 
-    public Quiz(String title, List<Question> questions, String category) {
+    public Quiz(String title, List<Question> questions, String category, int creatorId) {
         this.title = title;
         this.questions = questions;
+        this.category = category;
+        this.creatorId = creatorId;
+    }
+
+    public Quiz(int id, String title, String category) {
+        this.id = id;
+        this.title = title;
         this.category = category;
     }
 

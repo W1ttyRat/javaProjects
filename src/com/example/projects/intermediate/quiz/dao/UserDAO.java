@@ -62,7 +62,7 @@ public class UserDAO {
         return false;
     }
 
-    public User findByUsername(String username) {
+    public User userLogIn(String username) {
 
         String sql = "SELECT id, username, password, role FROM users WHERE username = ?";
 
@@ -84,6 +84,26 @@ public class UserDAO {
             System.out.println(e.getMessage());
         }
         return null;
+    }
+
+    public boolean checkUsername(String username) {
+
+        String sql = "SELECT username FROM users WHERE username = ? LIMIT 1";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 
 }
