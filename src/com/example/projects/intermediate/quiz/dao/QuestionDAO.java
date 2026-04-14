@@ -106,11 +106,52 @@ public class QuestionDAO {
                     options.add(optionText);
 
                 }
+
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return options;
+    }
+
+    public boolean updateQuestion(Question question) {
+        String sqlUpdateQuest = "UPDATE questions SET title = ?, correct_answer = ? WHERE id = ?";
+        String sqlDeleteOptions = "DELETE FROM question_options WHERE question_id = ?";
+        String sqlInsertOption = "INSERT INTO question_options (question_id, option_text) VALUES (?, ?)";
+
+        try (Connection conn = getConnection()) {
+            try {
+                conn.setAutoCommit(false);
+
+                try (PreparedStatement pstmt1 = conn.prepareStatement(sqlUpdateQuest)) {
+                    pstmt1.setString(1, question.getTitle());
+                    pstmt1.setString(2, question.getAnswer());
+                    pstmt1.setInt(3, question.getId());
+                    pstmt1.executeUpdate();
+                }
+
+                try (PreparedStatement pstmt2 = conn.prepareStatement(sqlDeleteOptions)) {
+                    pstmt2.setInt(1, question.getId());
+                    pstmt2.executeUpdate();
+                }
+
+                try (PreparedStatement pstmt3 = conn.prepareStatement(sqlInsertOption)) {
+                    for (String optionText : question.getOptions()) {
+                        pstmt3.setInt(1, question.getId());
+                        pstmt3.setString(2, optionText);
+                        pstmt3.executeUpdate();
+                    }
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println(e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 }

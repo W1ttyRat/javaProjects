@@ -128,4 +128,31 @@ public class QuizDAO {
         }
         return false;
     }
+
+    public List<Quiz> searchQuizByTitle(String searchTitle) {
+        List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT id, title, category FROM quizzes WHERE title ILIKE ? LIMIT 20";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + searchTitle + "%");
+
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    int id = rs.getInt("id");
+                    String title  = rs.getString("title");
+                    String category = rs.getString("category");
+
+                    Quiz quiz = new Quiz(id, title, category);
+                    quizzes.add(quiz);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return quizzes;
+    }
 }

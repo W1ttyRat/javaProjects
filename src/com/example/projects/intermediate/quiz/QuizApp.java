@@ -104,7 +104,24 @@ public class QuizApp {
             scanner.nextLine();
 
             if (choice == 1) {
-                System.out.println("");
+
+                System.out.println("Search a quiz by title");
+                String searchQuizTitle = scanner.nextLine();
+
+                List<Quiz> results = quizDAO.searchQuizByTitle(searchQuizTitle);
+
+                if (results.isEmpty()) {
+                    System.out.println("No quizzes found");
+                } else {
+                    for (int i = 0; i < results.size(); i++) {
+                        System.out.println((i + 1) + ". [ID: " + results.get(i).getId() + "] " + results.get(i).getTitle() + " (" + results.get(i).getCategory() + ")");
+                    }
+                    System.out.println();
+                }
+
+
+
+
             } else if (choice == 2) {
                 System.out.println("Quiz Title: ");
                 String quizTitle = scanner.nextLine();
@@ -159,8 +176,12 @@ public class QuizApp {
                     if (results.isEmpty()) {
                         System.out.println("No quizzes have been created");
                     } else {
-                        for (Quiz quiz : results) {
-                            System.out.println(quiz);
+                        /* for (Quiz quiz : results) {
+                            System.out.println(quiz.getId() + ". " + quiz.getTitle());
+                        } */
+
+                        for (int i = 0; i < results.size(); i++) {
+                            System.out.println((i+1) + ". " + "[ID: " + results.get(i).getId() + "] " + results.get(i).getTitle());
                         }
                     }
 
@@ -226,7 +247,43 @@ public class QuizApp {
                                     }
                                 }
                                 case 3 -> {
-                                    System.out.println("New question(s): ");
+                                    System.out.println("Questions in this quiz:");
+                                    for (int i = 0; i < questions.size(); i++) {
+                                        System.out.println((i+1) + ". " + questions.get(i).getTitle());
+                                    }
+
+                                    System.out.println("Select the question number to edit: ");
+                                    int qIndex = scanner.nextInt() - 1;
+                                    scanner.nextLine();
+
+                                    if (qIndex >= 0 && qIndex < questions.size()) {
+                                        Question selectedQ = questions.get(qIndex);
+
+                                        System.out.println("New question title: ");
+                                        selectedQ.setTitle(scanner.nextLine());
+
+                                        System.out.println("How many options? ");
+                                        int optionAmount = scanner.nextInt();
+                                        scanner.nextLine();
+
+                                        List<String> newOptions = new ArrayList<>();
+                                        for (int i = 1; i <= optionAmount; i++) {
+                                            System.out.println("New option " + i + ": ");
+                                            newOptions.add(scanner.nextLine());
+                                        }
+                                        selectedQ.setOptions(newOptions);
+
+                                        System.out.println("New correct answer: ");
+                                        selectedQ.setAnswer(scanner.nextLine());
+
+                                        if (questionDAO.updateQuestion(selectedQ)) {
+                                            System.out.println("Question updated successfully!");
+                                        } else {
+                                            System.out.println("Failed to update question.");
+                                        }
+                                    } else {
+                                        System.out.println("invalid selection.");
+                                    }
                                 }
                                 case 4 -> {}
                                 default -> {}
