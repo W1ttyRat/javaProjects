@@ -152,14 +152,89 @@ public class QuizApp {
                     }
                 }
             } else if (choice == 3) {
-                int creatorId = currentUser.getId();
-                List<Quiz> results = quizDAO.getUserQuizzes(creatorId);
+                while (true) {
+                    int creatorId = currentUser.getId();
+                    List<Quiz> results = quizDAO.getUserQuizzes(creatorId);
 
-                if (results.isEmpty()) {
-                    System.out.println("No quizzes have been created");
-                } else {
-                    for (Quiz quiz : results) {
-                        System.out.println(quiz);
+                    if (results.isEmpty()) {
+                        System.out.println("No quizzes have been created");
+                    } else {
+                        for (Quiz quiz : results) {
+                            System.out.println(quiz);
+                        }
+                    }
+
+                    System.out.println("\n1. Delete Quiz");
+                    System.out.println("2. Edit quiz");
+                    System.out.println("3. Exit view");
+                    int choiceQuiz = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (choiceQuiz == 1) {
+                        System.out.println("Enter the id of the quiz you wish to delete: ");
+                        int deleteId = scanner.nextInt();
+                        scanner.nextLine();
+                        if (quizDAO.deleteQuiz(deleteId)) {
+                            System.out.println("Deleted!");
+                        } else {
+                            System.out.println("Error!");
+                        }
+                    } else if (choiceQuiz == 2) {
+                        System.out.println("Enter the id of the quiz you wish to edit: ");
+                        int editId = scanner.nextInt();
+                        scanner.nextLine();
+
+                        Quiz myQuiz = quizDAO.getQuizById(editId);
+
+                        if (myQuiz == null) {
+                            System.out.println("Quiz not found!");
+                        } else {
+
+                            List<Question> questions = questionDAO.getQuestionsForQuiz(editId);
+                            myQuiz.setQuestions(questions);
+
+                            System.out.println("Loaded: " + myQuiz.getTitle());
+                            //System.out.println("true");
+                            System.out.println("1. Edit quiz title");
+                            System.out.println("2. Edit quiz category");
+                            System.out.println("3. Edit quiz questions");
+                            System.out.println("4. Exit");
+                            int editChoice = scanner.nextInt();
+                            scanner.nextLine();
+
+                            switch (editChoice) {
+                                case 1 -> {
+                                    System.out.println("New title: ");
+                                    String newTitle = scanner.nextLine();
+
+                                    myQuiz.setTitle(newTitle);
+                                    if (quizDAO.updateQuiz(myQuiz)) {
+                                        System.out.println("updated title");
+                                    } else {
+                                        System.out.println("failed to update title");
+                                    }
+                                }
+                                case 2 -> {
+                                    System.out.println("New category: ");
+                                    String newCategory = scanner.nextLine();
+
+                                    myQuiz.setCategory(newCategory);
+                                    if (quizDAO.updateQuiz(myQuiz)) {
+                                        System.out.println("updated category");
+                                    } else {
+                                        System.out.println("failed to update category");
+                                    }
+                                }
+                                case 3 -> {
+                                    System.out.println("New question(s): ");
+                                }
+                                case 4 -> {}
+                                default -> {}
+
+                            }
+                        }
+                    } else if (choiceQuiz == 3) {
+                        break;
                     }
                 }
             } else if (choice == 4) {

@@ -63,4 +63,69 @@ public class QuizDAO {
         }
         return quizzes;
     }
+
+    public boolean deleteQuiz(int id) {
+
+        String sql = "DELETE FROM quizzes WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            int rowsDeleted = pstmt.executeUpdate();
+
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean deleteQuiz(Quiz quiz) {
+        return deleteQuiz(quiz.getId());
+    }
+
+    public Quiz getQuizById(int id) {
+
+        String sql = "SELECT id, title, category, creator_id FROM quizzes WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Quiz quiz = new Quiz(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("category")
+                    );
+                    quiz.setCreatorId(rs.getInt("creator_id"));
+                    return quiz;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public boolean updateQuiz(Quiz quiz) {
+        String sql = "UPDATE quizzes SET title = ?, category = ? WHERE id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, quiz.getTitle());
+            pstmt.setString(2, quiz.getCategory());
+            pstmt.setInt(3, quiz.getId());
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
 }

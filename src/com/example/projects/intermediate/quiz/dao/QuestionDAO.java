@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.projects.beginner.todo.databaseConnection.getConnection;
 
@@ -54,5 +56,61 @@ public class QuestionDAO {
             System.out.println(e.getMessage());
         }
         return false;
+    }
+
+    public List<Question> getQuestionsForQuiz(int quizId) {
+        List<Question> questionList = new ArrayList<>();
+        String sql = "SELECT * FROM questions WHERE quiz_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, quizId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    int questionId = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String correctAnswer = rs.getString("correct_answer");
+
+                    List<String> options = getOptionsForQuestion(questionId);
+
+                    Question question = new Question(title, options, correctAnswer);
+                    question.setId(questionId);
+                    question.setQuizId(quizId);
+
+                    questionList.add(question);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return questionList;
+    }
+
+    private List<String> getOptionsForQuestion(int questionId) {
+        List<String> options = new ArrayList<>();
+        String sql = "SELECT option_text FROM question_options WHERE question_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, questionId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    String optionText = rs.getString("option_text");
+
+                    options.add(optionText);
+
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return options;
     }
 }
